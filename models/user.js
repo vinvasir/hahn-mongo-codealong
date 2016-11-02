@@ -16,7 +16,7 @@ userSchema.methods.name = function() {
 
 var noop = function() {};
 
-var userSchema.pre("save", function(done) {
+userSchema.pre("save", function(done) {
 	var user = this;
 	if (!user.isModified("password")) {
 		return done();

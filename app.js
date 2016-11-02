@@ -18,6 +18,9 @@ mongoose.connect("mongodb://localhost:27017/test");
 
 app.set("port", process.env.PORT || 3000);
 
+// set the static files directory
+app.use(express.static(path.resolve(__dirname, 'public')));
+
 // configure views directory and templating engine
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
