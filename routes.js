@@ -1,9 +1,28 @@
 var express = require("express");
-var routes = express.Router();
 
+// import the User model
+var User = require("./models/user");
 
-routes.get("/", function(req, res) {
-	res.send("Hello world!");
+// start the router
+var router = express.Router();
+
+// middleware to set some variables for templates
+router.use(function(req, res, next) {
+	res.locals.currentUser = req.user;
+	res.locals.errors = req.flash("error");
+	res.locals.infos = req.flash("info");
+	next();
 });
 
-module.exports = routes;
+// User list page. Query all the users
+// and sort from newest to oldest.
+router.get("/", function(req, res, next) {
+	User.find()
+	.sort({ createdAt: "descending" })
+	.exec(function(err, users) {
+		if (err) { return next(err); }
+		res.render("index", { users: users });
+	});
+});
+
+module.exports = router;
