@@ -39,7 +39,7 @@ router.post("/signup", function(req, res, next) {
 	User.findOne({ username: username }, function(err, user) {
 		if (err) { return next(err); }
 		if (user) {
-			req.flash("error" "User already exists.");
+			req.flash("error", "User already exists.");
 			return res.redirect("/signup");
 		}
 
@@ -55,5 +55,13 @@ router.post("/signup", function(req, res, next) {
 	failureRedirect: "/signup",
 	failureFlash: true
 }));
+
+router..get("/users/:username", function(req, res, next) {
+	User.findOne({ username: req.params.username }, function(err, user) {
+		if(err) { return next(err); }
+		if(!user) { return next(404); }
+		res.render("profile", { user: user });
+	});
+});
 
 module.exports = router;
