@@ -9,7 +9,18 @@ var User = require("./models/user");
 // start the router
 var router = express.Router();
 
-// middleware to set some variables for templates
+// define middleware to redirect visitors
+// from pages that require login.
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		next();
+	} else {
+		req.flash("info", "You must be logged in to see this page.");
+		res.redirect("/login");
+	}
+}
+
+// use middleware to set some variables for templates
 router.use(function(req, res, next) {
 	res.locals.currentUser = req.user;
 	res.locals.errors = req.flash("error");
@@ -65,6 +76,30 @@ router.post("/login", passport.authenticate("login", {
 	failureRedirect: "/login",
 	failureFlash: true
 }));
+
+router.get("/logout", function(req, res) {
+	req.logout();
+	res.redirect("/");
+});
+
+// a route that uses the "isAuthenticated" middleware
+// defined above
+router.get("/edit", ensureAuthenticated, function(req, res) {
+	res.render("edit");
+});
+
+router.post("/edit", ensureAuthenticated, function(req, res, next) {
+	req.user.displayName = req.body.displayName;
+	req.user.bio = req.body.bio;
+	req.user.save(function(err) {
+		if (err) {
+			next(err);
+			return;
+		}
+		req.flash("info", "Profile updated!");
+		res.redirect("/edit");
+	});
+});
 
 router.get("/users/:username", function(req, res, next) {
 	User.findOne({ username: req.params.username }, function(err, user) {
