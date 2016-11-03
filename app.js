@@ -4,8 +4,12 @@ var mongoose = require("mongoose");
 var path = require("path");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
+var passport = require("passport");
 var session = require("express-session");
 var flash = require("connect-flash");
+
+// set up passport
+var setUpPassport = require("./setuppassport");
 
 // put routes into a separate file
 var routes = require("./routes");
@@ -15,6 +19,9 @@ var app = express();
 
 // connect to the MongoDB server
 mongoose.connect("mongodb://localhost:27017/test");
+
+// call setUpPassport
+setUpPassport();
 
 app.set("port", process.env.PORT || 3000);
 
@@ -35,6 +42,10 @@ app.use(session({
 	saveUninitialized: true
 }));
 app.use(flash());
+
+// initialize passport and use its sessions.
+app.use(passport.initialize());
+app.use(passport.session());
 
 // mount the routes file at the root path
 app.use(routes);
